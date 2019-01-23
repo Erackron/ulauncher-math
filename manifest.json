@@ -1,0 +1,25 @@
+{
+  "manifest_version": "2",
+  "api_version": "1",
+  "name": "LaTEX Math",
+  "description": "Generate latex math images",
+  "developer_name": "Jorai Rijsdijk",
+  "icon": "images/icon.png",
+  "options": {},
+  "preferences": [
+    {
+      "id": "math_kw",
+      "type": "keyword",
+      "name": "Math launcher",
+      "description": "",
+      "default_value": "math"
+    },
+    {
+      "id": "math_copy",
+      "type": "input",
+      "name": "Copy command",
+      "description": "The command to pipe the generated image to.",
+      "default_value": "xclip -t image/png -selection clipboard -i"
+    }
+  ]
+}
