@@ -35,8 +35,8 @@ class MathExtension(Extension):
     def generate_image(self, text):
         try:
             matplotlib.rcParams['mathtext.fontset'] = 'cm'
-            fig = plt.figure(figsize=(10, 0.75))
-            fig.text(0.5, 0.5, "$" + text + "$", size=20, ha='center', va='center', bbox={'fill': False, 'pad': 10})
+            fig = plt.figure(figsize=(20, 5))
+            fig.text(0.5, 0.5, "$" + text + "$", size=25, ha='center', va='center', bbox={'fill': False, 'pad': 10})
 
             buf = io.BytesIO()
             fig.savefig(buf, format='png')
