@@ -6,3 +6,5 @@ Python2 dependencies:
 * matplotlib
 * pillow
 * xclip (optional)
+
+Matplotlib supports [a subset](ihttps://matplotlib.org/users/mathtext.html) of the LaTEX math symbols
