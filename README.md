@@ -5,6 +5,6 @@ I obtained the icon from [shareicon.net](https://www.shareicon.net/document-file
 Python2 dependencies:
 * matplotlib
 * pillow
-* xclip (optional)
+* gtk3 (also a ULauncher dependency)
 
 Matplotlib supports [a subset](https://matplotlib.org/users/mathtext.html) of the LaTEX math symbols

@@ -5,12 +5,14 @@ from ulauncher.api.shared.item.ExtensionResultItem import ExtensionResultItem
 from ulauncher.api.shared.action.ExtensionCustomAction import ExtensionCustomAction
 from ulauncher.api.shared.action.RenderResultListAction import RenderResultListAction
 import logging
-import subprocess
-import shlex
 import io
 import matplotlib.pyplot as plt
 import matplotlib
 from PIL import Image, ImageChops
+import gi
+
+gi.require_version('Gtk', '3.0')
+from gi.repository import Gtk, Gdk, GLib, GdkPixbuf
 
 logger = logging.getLogger(__name__)
 
@@ -19,12 +21,12 @@ class MathExtension(Extension):
 
     def __init__(self):
         super(MathExtension, self).__init__()
+        self.clipboard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
         self.subscribe(KeywordQueryEvent, KeywordQueryEventListener())
         self.subscribe(ItemEnterEvent, ItemEnterEventListener())
-        self.subscribe(PreferencesUpdateEvent, PreferencesUpdateEventListener())
-        self.subscribe(PreferencesEvent, PreferencesEventListener())
 
-    def trim(self, im):
+    @staticmethod
+    def trim(im):
         bg = Image.new(im.mode, im.size, im.getpixel((0, 0)))
         diff = ImageChops.difference(im, bg)
         diff = ImageChops.add(diff, diff, 2.0, -100)
@@ -32,11 +34,12 @@ class MathExtension(Extension):
         if bbox:
             return im.crop(bbox)
 
-    def generate_image(self, text):
+    @staticmethod
+    def generate_image(text):
         try:
             matplotlib.rcParams['mathtext.fontset'] = 'cm'
-            fig = plt.figure(figsize=(20, 5))
-            fig.text(0.5, 0.5, "$" + text + "$", size=25, ha='center', va='center', bbox={'fill': False, 'pad': 10})
+            fig = plt.figure(figsize=(200, 5))
+            fig.text(0.5, 0.5, "$" + text + "$", size=100, ha='center', va='center', bbox={'fill': False, 'pad': 10})
 
             buf = io.BytesIO()
             fig.savefig(buf, format='png')
@@ -51,34 +54,21 @@ class MathExtension(Extension):
         buf = io.BytesIO(image_data)
         buf.seek(0)
         image = Image.open(buf)
-        im = self.trim(image)
+        im = self.trim(image).convert("RGB")
         buf.close()
 
-        buf = io.BytesIO()
-        im.save(buf, format='PNG')
-
-        clipboard_proc = subprocess.Popen(shlex.split(self.copy), stdin=subprocess.PIPE)
-        clipboard_proc.communicate(buf.getvalue())
-        buf.close()
+        im_data = im.tobytes()
+        w, h = im.size
+        im_data = GLib.Bytes.new(im_data)
+        pixbuf = GdkPixbuf.Pixbuf.new_from_bytes(im_data, GdkPixbuf.Colorspace.RGB, False, 8, w, h, w * 3)
+        self.clipboard.set_image(pixbuf)
+        self.clipboard.store()
 
 
 class ItemEnterEventListener(EventListener):
 
     def on_event(self, event, extension):
         extension.copy_to_clipboard(event.get_data())
-
-
-class PreferencesUpdateEventListener(EventListener):
-
-    def on_event(self, event, extension):
-        if event.id == "math_copy":
-            extension.copy = event.new_value
-
-
-class PreferencesEventListener(EventListener):
-
-    def on_event(self, event, extension):
-        extension.copy = event.preferences["math_copy"]
 
 
 class KeywordQueryEventListener(EventListener):
