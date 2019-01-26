@@ -7,4 +7,4 @@ Python2 dependencies:
 * pillow
 * xclip (optional)
 
-Matplotlib supports [a subset](ihttps://matplotlib.org/users/mathtext.html) of the LaTEX math symbols
+Matplotlib supports [a subset](https://matplotlib.org/users/mathtext.html) of the LaTEX math symbols
